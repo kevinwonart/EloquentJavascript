@@ -1,3 +1,3 @@
 # EloquentJavascript
 
-A walkthrough of the problems in Eloquent Javascript. 
+My walkthrough of the problems in Eloquent Javascript by Marijn Haverbeke. 
