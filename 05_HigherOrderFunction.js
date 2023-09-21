@@ -1,5 +1,8 @@
 //Chapter 5-Higher-Order Function
 //Abstracting Repetition-pg 85
+//
+var scripts = require('./scripts.js');
+
 function repeat(n, action){
     for(let i =0; i < n; i++){
         action(i);
@@ -73,9 +76,71 @@ console.log(myarr.reduce((flat, current) => flat.concat(current), [])); //Author
 function test(arr, append){
     return arr.push(append);
 }
-// this doesn't work. conclusion "myarr.reduce" is a builtin
-// array function in javascript
+// this doesn't work. conclusion "myarr.reduce()" is a builtin
+// array feature in javascript
 //console.log(["a", "b"].test("c"));
 
-//Your Own Loop- pg 95
+//Your Own Loop-pg 95
+function myLoop(count, limit, step, action){
+    if(limit(count)){
+        action(count);
+        myLoop(step(count), limit, step, action)
+    }
+}
 
+//Author's solution
+function loop(start, test, update, body) {
+  for (let value = start; test(value); value = update(value)) {
+    body(value);
+  }
+}
+
+myLoop(3, n => n > 0, n => n - 1, console.log);
+// → 3
+// → 2
+// → 1
+
+myLoop(3, n => n > 0, n => n - 1, console.log);
+//3
+//2
+//1
+
+
+//Everything- pg 95
+function every(arr, action){
+    if(arr.length === 0) return "empty array";
+    for(let element of arr){
+        if(!action(element))    
+            return false;
+    }
+    return true;
+}
+
+function everysome(arr, action){
+    if(arr.length === 0) return "empty array";
+    return !arr.some(element => !action(element));
+}
+console.log(every([1, 3, 5], n => n < 10)); //true
+console.log(every([2, 4 , 16], n => n <10)); //false
+console.log(every([], n => n < 10));//empty array
+console.log(everysome([1, 3, 5], n => n < 10)); //true
+console.log(everysome([2, 4 , 16], n => n <10)); //false
+console.log(everysome([], n => n < 10));//empty array
+
+//testing some !function() results not
+//related to chapter 5
+function f(n){
+    return "a string";
+}
+
+const f10 = n => n > 10;
+
+console.log(f); //[Function: f]
+console.log(!f); //false
+console.log(f("a"));//a string
+console.log(f10(11));//true
+console.log(f10(9));//false
+console.log(!f10(11));//false
+console.log(!f10(9));//true
+
+console.log(SCRIPTS[1].name);
