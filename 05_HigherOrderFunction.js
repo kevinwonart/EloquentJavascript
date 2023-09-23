@@ -1,6 +1,7 @@
 //Chapter 5-Higher-Order Function
 //Abstracting Repetition-pg 85
 //
+//
 var scripts = require('./scripts.js');
 
 function repeat(n, action){
@@ -196,6 +197,7 @@ function countBy(items, groupName) {
 
 console.log(countBy([1,2,3,4,5], n => n > 2)); // [ { name: false, count: 2 }, { name: true, count: 3 } ]
 
+//Dominant Writing Direction pg 95
 function dominantDirection(string){
     let str = string;
 
