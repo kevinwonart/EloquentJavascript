@@ -9,13 +9,16 @@ function repeat(n, action){
     }
 }
 
-repeat(3,console.log, "Hello World");
+repeat(3,console.log); 
+//0
+//1
+//2
 
 let labels = [];
 repeat(5, i =>{
     labels.push(`Unit ${i+1}`);
 });
-console.log(labels);
+console.log(labels); //[ 'Unit 1', 'Unit 2', 'Unit 3', 'Unit 4', 'Unit 5' ]
 
 //Higher-Order Function-pg 86
 //
@@ -33,7 +36,7 @@ function greaterThan(n){
     return m => m > n;
 }
 let greaterThan10 = greaterThan(10);
-console.log(greaterThan10(11));
+console.log(greaterThan10(11));//true
 
 function noisy(f){
     return (...args) => {
@@ -44,6 +47,8 @@ function noisy(f){
     };
 }
 noisy(Math.min)(3,2,1);
+//calling with [ 3, 2, 1 ]
+//called with [ 3, 2, 1 ] , returned 1
 
 function unless(test, then) {
     if (!test) then();
@@ -54,8 +59,13 @@ repeat(3, n => {
         console.log(n, "is even");
     });
 });
+//0 is even
+//2 is even
 
 ["A", "B", "A"].forEach(b => console.log(b));
+//A
+//B
+//A
 
 function reduce(arr, combine, start) {
     let current = start;
@@ -65,7 +75,7 @@ function reduce(arr, combine, start) {
     return current;
 }
 
-console.log(reduce([1, 2, 3, 4], (a, b) => a + b, 0));
+console.log(reduce([1, 2, 3, 4], (a, b) => a + b, 0));//10
 
 //Flatten-pg 95
 var myarr = ["a", ["b", "c"], "d"];
