@@ -234,7 +234,7 @@ class MatrixIterator {
             value: this.matrix.get(this.x, this.y)};
         this.x++;
 
-        if (this.x == this.matrixwidth) {
+        if (this.x == this.matrix.width) {
             this.x = 0;
             this.y++;
         }
@@ -246,8 +246,192 @@ Matrix.prototype[Symbol.iterator] = function() {
     return new MatrixIterator(this);
 };
 
-let matrix = new Matrix(2, 2, (x, y) => `${x},${y}`);
+let matrix = new Matrix(2, 2, (x, y) => `value ${x},${y}`);
 for (let {x, y, value} of matrix) {
-    console.log("over here");
     console.log(x, y, value);
 }
+//0 0 value 0,0
+//1 0 value 1,0
+//0 1 value 0,1
+//1 1 value 1,1
+
+//Getters, Setters, and Statics pg 109
+let varyingSize = {
+    get size() {
+        return Math.floor(Math.random() * 100);
+    }
+};
+
+console.log(varyingSize.size);//21
+console.log(varyingSize.size);//17
+
+class Temperature {
+    constructor(celsius) {
+        this.celsius = celsius;
+    }
+    get fahrenheit() {
+        return this.celsius * 1.8 +32;
+    }
+    set fahrenheit(value) {
+        this.celsius = (value - 32) / 1.8;
+    }
+
+    static fromFahrenheit(value) {
+        return new Temperature((value - 32) / 1.8);
+    }
+}
+
+let temp = new Temperature(22);
+console.log(temp.fahrenheit);//71.6
+temp.fahrenheit = 86;
+console.log(temp.celsius);//30
+
+//Inheritance pg 111
+class SymmetricMatrix extends Matrix {
+    constructor(size, element = (x, y) => undefined) {
+        super(size, size, (x, y) => {
+            if (x < y) return element(y, x);
+            else return element(x, y);
+        });
+    }
+
+    set(x, y, value) {
+        super.set(x, y, value);
+        if (x != y) {
+            super.set(y, x, value);
+        }
+    }
+}
+
+let matrix2 = new SymmetricMatrix(5, (x, y) => `${x},${y}`);
+console.log(matrix2.get(2,3));
+
+//The instanceof Ooperator pg 112
+console.log(
+    new SymmetricMatrix(2) instanceof SymmetricMatrix);//true
+console.log(new SymmetricMatrix(2) instanceof Matrix);//true
+console.log(new Matrix(2, 2) instanceof SymmetricMatrix);//false
+console.log([1] instanceof Array);//true
+
+//Exercises
+//A Vector Type pg 113
+class Vec {
+    constructor(x, y){
+        this.x = x;
+        this.y = y;
+    }
+    minus(newVector) {
+        this.x = this.x - newVector.x;
+        this.y = this.y - newVector.y;
+        return this;
+    }
+    plus(newVector) {
+        this.x = this.x + newVector.x;
+        this.y = this.y + newVector.y;
+        return this;
+    }
+    length(){
+        return Math.hypot(this.x, this.y);
+    }
+}
+
+console.log(new Vec(1,2).plus(new Vec(2, 3)));//Vec { x: 3, y: 5 }
+console.log(new Vec(1,2).minus(new Vec(2, 3)));//Vec { x: -1, y: -1 }
+console.log(new Vec(3,4).length());//5
+
+/*Author's solution
+ * 
+class Vec {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  plus(other) {
+    return new Vec(this.x + other.x, this.y + other.y);
+  }
+
+  minus(other) {
+    return new Vec(this.x - other.x, this.y - other.y);
+  }
+
+  get length() {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+}
+*/
+
+//Groups pg 113
+class Group{
+    constructor(){
+        this.group = [];
+    }
+    add(element){
+        if(this.group.indexOf(element) < 0){
+            this.group.push(element);
+        }
+    }
+    delete(element){
+        if(this.group.indexOf(element) >= 0){
+           this.group.splice(this.group.indexOf(element), 1); 
+        }
+    }
+    has(element){
+        if(this.group.indexOf(element) >= 0)
+            return true;
+        return false;
+    }
+    static from(element){
+        let group = new Group;
+        for(let elem of element)
+            group.add(elem);
+        return group;
+    }
+}
+/*
+ *Author's solution
+
+class Group {
+  constructor() {
+    this.members = [];
+  }
+
+  add(value) {
+    if (!this.has(value)) {
+      this.members.push(value);
+    }
+  }
+
+  delete(value) {
+    this.members = this.members.filter(v => v !== value);
+  }
+
+  has(value) {
+    return this.members.includes(value);
+  }
+
+  static from(collection) {
+    let group = new Group;
+    for (let value of collection) {
+      group.add(value);
+    }
+    return group;
+  }
+}
+*/
+
+let group = Group.from([10, 20]);
+console.log(group.has(10));//true
+console.log(group.has(30));//false
+group.add(10);
+group.delete(10);
+console.log(group.has(10));//false
+console.log(group);//group { group: [ 20 ] }
+group.add(10);
+group.add(10);
+group.add(10);
+group.add(10);
+console.log(group);//group { group: [ 20, 10 ] }
+
+//Iterable Groups pg 114
+
