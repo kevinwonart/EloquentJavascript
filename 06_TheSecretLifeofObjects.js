@@ -186,6 +186,15 @@ console.log([1, 2][toStringSymbol]());//2 cm of blue yarn
 //override the prototype method
 //whynot just make a new function with a different name without
 //having to go through the hassle of making a Symbol?
+//
+//uniqueness-symbols guarantee uniqueness especially when
+//working with large code bases where working with multiple
+//developers makes it hard to keep naming conventions consistent
+//or multiple libraries
+//
+//symbols allow for truly private properties(but not sure how 
+//exactly....naming conventions make instances more accesible
+//perhaps?
 
 let stringObject = {
     [toStringSymbol]() {return "a jute rope"; }
@@ -361,23 +370,23 @@ class Vec {
 }
 */
 
-//Groups pg 113
+//Groups and Iterable Group pg 113-114
 class Group{
     constructor(){
-        this.group = [];
+        this.members= [];
     }
     add(element){
-        if(this.group.indexOf(element) < 0){
-            this.group.push(element);
+        if(this.members.indexOf(element) < 0){
+            this.members.push(element);
         }
     }
     delete(element){
-        if(this.group.indexOf(element) >= 0){
-           this.group.splice(this.group.indexOf(element), 1); 
+        if(this.members.indexOf(element) >= 0){
+           this.members.splice(this.members.indexOf(element), 1); 
         }
     }
     has(element){
-        if(this.group.indexOf(element) >= 0)
+        if(this.members.indexOf(element) >= 0)
             return true;
         return false;
     }
@@ -387,10 +396,31 @@ class Group{
             group.add(elem);
         return group;
     }
+    [Symbol.iterator]() {
+        return new GroupIterator(this);
+    }
 }
+class GroupIterator {
+    constructor(group) {
+        this.group = group;
+        this.position = 0;
+    }
+
+    next() {
+        if (this.position >= this.group.members.length) {
+            return {done: true};
+        } else {
+            let result = {value: this.group.members[this.position],
+                done: false};
+            this.position++;
+            return result;
+        }
+    }
+}
+
+
 /*
  *Author's solution
-
 class Group {
   constructor() {
     this.members = [];
@@ -417,7 +447,30 @@ class Group {
     }
     return group;
   }
+
+  [Symbol.iterator]() {
+    return new GroupIterator(this);
+  }
 }
+
+class GroupIterator {
+  constructor(group) {
+    this.group = group;
+    this.position = 0;
+  }
+
+  next() {
+    if (this.position >= this.group.members.length) {
+      return {done: true};
+    } else {
+      let result = {value: this.group.members[this.position],
+                    done: false};
+      this.position++;
+      return result;
+    }
+  }
+}
+
 */
 
 let group = Group.from([10, 20]);
@@ -433,5 +486,29 @@ group.add(10);
 group.add(10);
 console.log(group);//group { group: [ 20, 10 ] }
 
-//Iterable Groups pg 114
+for (let value of Group.from(["a", "b", "c"])) {
+    console.log(value);
+}
+
+//Borrowing a Method pg 114
+
+let map = {one: true, two: true, hasOwnProperty: true};
+
+const hasOwn = Symbol("hasOwnProperty");
+Object.prototype[hasOwn] = function(element) {
+    return typeof this[element] !== 'undefined';
+};
+console.log(map[hasOwn]("one"));
+console.log(map[hasOwn]("three"));
+
+/*
+
+Author's solution
+
+console.log(Object.prototype.hasOwnProperty.call(map, "one"));//true
+
+Another solution if browser supported
+is to use hasOwn
+
+*/
 
