@@ -1,3 +1,5 @@
+//Chapter 7 - A Robot
+
 let log = console.log;
 const roads = [
     "Alice's House-Bob's House", "Alice's House-Cabin",
@@ -178,7 +180,7 @@ function goalOrientedRobot({place, parcels}, route) {
 }
 
 
-//let setState = VillageState.random;
+//Measuring a Robot pg 125
 function compareRobot(robot1, robot2){
     let robot1Count = 0;
     let robot2Count = 0;
@@ -203,6 +205,7 @@ function compareRobot(robot1, robot2){
 //randomRobot average turns per 5 random Parcels over 100 trials is 66.76
 //goalOrientedRobot average turns per 5 random Parcels over 100 trials is 15.13
 
+//Robot Efficiency pg 125
 function betterRobot({place, parcels}, route){
     if (route.length ==0){
         let moveToList = [...new Set(parcels
@@ -237,9 +240,10 @@ function betterRobot({place, parcels}, route){
     return {direction: route[0], memory: route.slice(1)};
 }
 
-runRobot(setState, betterRobot, []);
-runRobot(setState, routeRobot, []);
-compareRobot(routeRobot, betterRobot);
+//runRobot(setState, betterRobot, []);
+//runRobot(setState, routeRobot, []);
+//compareRobot(routeRobot, betterRobot);
+
 /*
  testing things how Sets map and array filter works*
 let arr = [{A: 1, B: 9},{A:2,B:8},{A:3, B: 7},{A:1,B:6}, {A:2,B:1}];
@@ -260,5 +264,61 @@ log("arr: " + arr);
 log("filterArr2: " + filterArr2);
 log("filterArr3: " + filterArr3);
 */
+//Author's Solution
+function lazyRobot({place, parcels}, route) {
+  if (route.length == 0) {
+    // Describe a route for every parcel
+    let routes = parcels.map(parcel => {
+      if (parcel.place != place) {
+        return {route: findRoute(roadGraph, place, parcel.place),
+                pickUp: true};
+      } else {
+        return {route: findRoute(roadGraph, place, parcel.address),
+                pickUp: false};
+      }
+    });
 
+    // This determines the precedence a route gets when choosing.
+    // Route length counts negatively, routes that pick up a package
+    // get a small bonus.
+    function score({route, pickUp}) {
+      return (pickUp ? 0.5 : 0) - route.length;
+    }
+    route = routes.reduce((a, b) => score(a) > score(b) ? a : b).route;
+  }
 
+  return {direction: route[0], memory: route.slice(1)};
+}
+compareRobot(lazyRobot,betterRobot);
+//lazyRobot...12.25
+//betterRobot...13.21
+//my robot on average is one step slower than the lazy robot!
+//the author introduced a way of setting a solution that I never thought of
+//my robot will also occasionally run into an infinite loop depending 
+//on the randomized village state parcels...need to look into that.
+
+//Persistent Group pg 126
+class PGroup{
+    constructor(elements){
+        this.elements = elements;
+    }
+    add(value){
+        if (this.has(value)) return this;
+        return new PGroup(this.elements.concat([value]));
+    }
+    delete(value){
+        if (!this.has(value)) return this;
+        return new PGroup(this.elements.filter(e => e !== value));
+    }
+    has(value){
+        return this.elements.includes(value);
+    }
+}
+PGroup.empty = new PGroup([]);
+let a = PGroup.empty.add("a");
+let ab = a.add("b");
+let b = ab.delete("a");
+
+log(b.has("b"));//true
+log(a.has("b"));//false
+log(b.has("a"));//false
