@@ -103,9 +103,11 @@ function runRobot(state, robot, memory) {
             return turn;
         }
         let action = robot(state, memory);
+        log(action);
         state = state.move(action.direction);
         memory = action.memory;
         log(`Moved to ${action.direction}`);
+        ;
     }
 }
 
@@ -190,17 +192,73 @@ function compareRobot(robot1, robot2){
     log(`${robot2.name} average turns per 5 random Parcels over 100 trials is ${robot2Count/100}`);
 }
 
-compareRobot(routeRobot, goalOrientedRobot);
+//compareRobot(routeRobot, goalOrientedRobot);
 //Moved to Alice's House...
 //...
 //routeRobot average turns per 5 random Parcels over 100 trials is 17.95
 //goalOrientedRobot average turns per 5 random Parcels over 100 trials is 14.59
-compareRobot(randomRobot, goalOrientedRobot);
+//compareRobot(randomRobot, goalOrientedRobot);
 //Moved to Alice's House...
 //...
 //randomRobot average turns per 5 random Parcels over 100 trials is 66.76
 //goalOrientedRobot average turns per 5 random Parcels over 100 trials is 15.13
 
-function betterRobot(state, route){
-
+function betterRobot({place, parcels}, route){
+    if (route.length ==0){
+        let moveToList = [...new Set(parcels
+            .map((list) => list.place)
+            .filter(value => !parcels.map((list) => list.address).includes(value)))];
+        parcels.forEach(parcel => {
+            if(parcel.place == place) {
+                moveToList.splice(moveToList.indexOf(place),1);
+                moveToList.push(parcel.address);
+            }
+        });
+            
+        log("Debug Place: " + place);
+        log("Debug Parcels: " + parcels);
+        log("Debug moveToList: "+ moveToList);
+        if (moveToList.length === 0 && parcels.length > 0){
+            moveToList = [...new Set(parcels
+                .map((list) => list.place))];
+            parcels.forEach(parcel => {
+                moveToList.splice(moveToList.indexOf(place),1);
+                moveToList.push(parcel.address);
+            });
+        }
+        log("Debug moveToList after if: "+ moveToList);
+        route = moveToList
+            .map((route) => findRoute(roadGraph, place, route))
+            .reduce((prev, next) => 
+                prev.length > next.length ? next : prev);
+        log("Debug Route: " + route);
+    }
+    log("route outside of if: " + route);
+    return {direction: route[0], memory: route.slice(1)};
 }
+
+runRobot(setState, betterRobot, []);
+runRobot(setState, routeRobot, []);
+compareRobot(routeRobot, betterRobot);
+/*
+ testing things how Sets map and array filter works*
+let arr = [{A: 1, B: 9},{A:2,B:8},{A:3, B: 7},{A:1,B:6}, {A:2,B:1}];
+let newArr = [...new Set(arr.map((item) => item.A))];
+let arr2 = [...new Set(arr.map((item) => item.B))];
+let filterArr = [...new Set(arr
+    .map((item) => item.A)
+    .filter(value => !arr.map((item) => item.B).includes(value)))];
+
+let filterArr2 = [...new Set(arr
+    .map((item) => item.A)
+    .filter(value => !arr2.includes(value)))];
+let filterArr3 = newArr.filter(value => !arr2.includes(value));
+log("newArr: "+ newArr);
+log("arr2: " + arr2);
+log("filterArr: " + filterArr);
+log("arr: " + arr);
+log("filterArr2: " + filterArr2);
+log("filterArr3: " + filterArr3);
+*/
+
+
